@@ -16,5 +16,5 @@ for k=2:d
   I = kron(I,I1);
 end
 A = A*n^2;
-
+end
 

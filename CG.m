@@ -3,7 +3,7 @@ function [iter_num,rel_res_size] = CG(A,b,x_k,eps,K)
     %diagonal of A; in lecture notes it's named 'M'; is sparse
     D = diag(diag(A));
     T = -(A-D); %lecture 15; page: 3/28; is sparse
-    x = x_k + 1;
+    % x = x_k + 1;
     p_k = x_k;
     %alpha_k = 0;
     beta_k = 0;
@@ -13,12 +13,13 @@ function [iter_num,rel_res_size] = CG(A,b,x_k,eps,K)
     iter_num = 0;
     while norm(r_k) > eps
         p_k = r_k + beta_k*p_k;
-        alpha_k = (p_k'*r_k)/(p_k'*A*p_k);
+        A_pk = A * p_k;
+        alpha_k = (p_k'*r_k)/(p_k'*A_pk);
         if iter_num > 0
             beta_k = (r_k'*r_k)/(r_k_m1'*r_k_m1);
         end
         r_k_m1 = r_k;   %r_k_m1 = r_{k-1}; from the formula
-        r_k = r_k - alpha_k*(A*p_k);
+        r_k = r_k - alpha_k*(A_pk);
         x_k = x_k + alpha_k * p_k;
         
         iter_num = iter_num+1;
