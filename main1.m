@@ -1,18 +1,24 @@
 clear;
 
 %initial data
+%{
 n = [10,20];  %sequence
 d = [1,2];  %sequence
+
+%}
+
+n = [20,40,60];  %inner grid points; sequence
+d = [1,2,3];  %dimensions; sequence
 K = 1200;   %iteration limit
 
 main_1(n,d,K,Methods.CG)
 
 
-%iteration number is the length of data!!
+% iteration number is the length of data!!
 
 
-%main function here
-function main_1(n_seq,d_seq,K, method)
+% main function here
+function main_1(n_seq,d_seq, K, method)
     if isinteger(K)
         disp('K must be an integer!')
         return
@@ -22,16 +28,16 @@ function main_1(n_seq,d_seq,K, method)
         return
     end
     legends = [];
-    for d = d_seq
-        for n = n_seq
-            %system terms
-            N = n^d;    %should be >=2000
-            b = rand(N,1);
-            A = lap(N,1);   %already sparse
-            x_k = zeros(N,1); %x_0 = 0
-            eps = 0.001;
-        
-            if method == Methods.Jacobi
+    if method == Methods.Jacobi
+        for d = d_seq
+            for n = n_seq
+                %system terms
+                N = n^d;    %should be >=2000
+                b = rand(N,1);
+                A = lap(N,1);   %already sparse
+                x_k = zeros(N,1); %x_0 = 0
+                eps = 0.001;
+
                 titles = 'Jacobi method';
                 %{
                 D = zeros(size(A));
@@ -51,7 +57,18 @@ function main_1(n_seq,d_seq,K, method)
                 semilogy(1:1:iter_num, rel_res_size)
                 hold on
                 legends = [legends; ['d=',num2str(d),' n=',num2str(n),'; ']];
-            elseif method == Methods.CG
+            end
+        end
+    elseif method == Methods.CG
+        for d = d_seq
+            for n = n_seq
+                %system terms
+                N = n^d;    %should be >=2000
+                b = rand(N,1);
+                A = lap(N,1);   %already sparse
+                x_k = zeros(N,1); %x_0 = 0
+                eps = 0.001;
+
                 titles = 'Conjugate gradient method';
                 %{
                 lambda = eig(A);
@@ -67,11 +84,11 @@ function main_1(n_seq,d_seq,K, method)
                 semilogy(1:1:iter_num, rel_res_size)
                 hold on
                 legends = [legends; ['d=',num2str(d),' n=',num2str(n),'; ']];
-            else
-                disp('incorrect method given!')
-                return
             end
         end
+    else
+        disp('No valid method input; Methods.CG & Methods.Jacobi')
+        return
     end
     ylabel('relative residual size')
     xlabel('iteration number')
