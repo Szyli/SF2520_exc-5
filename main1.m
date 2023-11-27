@@ -67,7 +67,10 @@ clear all;
 
 % spy(A);
 
-b = rand(35296, 1);
+% Don't forget to load the file
+%% Task 2a)
+NxN = size(A);
+b = rand(NxN(1), 1);
 tic
 [x, flag, relRes, Iter, resVec] = pcg(A, b, 1e-4, 900);
 toc
@@ -88,9 +91,9 @@ title('Convergence Scheme of `pcg`')
 % Computation time 0.878271.
 %{
     Iterations;
-        763
+        763 (Varies depending on b)
     Residual size;
-        9.9645*10^(-5)
+        9.9645*10^(-5) (Varies depending on b)
 
 %}
 %% Solving with the inverse method
@@ -100,7 +103,7 @@ toc
 
 % Computation time 1.679235.
 % The computation time is more or less doubled.
-%% Precondtioner diag(A)
+%% Precondtioner diag(A) 2b)
 M1 = diag(diag(A));
 
 disp('Time 1')
@@ -142,9 +145,106 @@ toc
 
 %{
     M = diag(A);
-        1.710944s
+        1.687100s (varies)
     M = L*L^T;
-        1.627274s
+        0.794070s (varies)
+%}
+
+%% Task 2c)
+
+%{
+    Load the file convdiff.mat the same way as prior
+%}
+clear all;
+%% pcg doesn't work
+NxN = size(A);
+b = rand(NxN(1), 1);
+
+[x, flag, relRes, Iter, resVec] = pcg(A, b, 1e-4, 2000);
+disp(flag)
+% flag = varies inbetween 4 & 1; diverges for 4.
+
+%% GMRES 
+disp('Time for Gmres')
+tic
+[x, flag, relRes, Iter, resVec] = gmres(A, b, [], 1e-4, 500);
+toc
+semilogy(0:length(resVec)-1,resVec/norm(b))
+xlabel('Iterations k')
+grid;
+ylabel('Relative residual')
+title('Convergence Scheme of `gmres`')
+
+disp(relRes)
+disp(Iter)
+disp(size(resVec))
+
+%{
+    Time for gmres: 6.449367
+    Relative residual size 9.9719 * 10^(-5)
+    Iterations: 274
+%}
+
+
+%% Timing
+disp('Time for \')
+tic
+x = A\b;
+toc
+% Time ~ 3.596066s
+
+%% Using Preconditioners with gmres
+
+M = diag(diag(A));
+disp('M = diag(A)')
+tic
+[x, flag, relRes, Iter, resVec1] = gmres(A, b, [], 1e-4, 500, M);
+toc
+% Time: 5.191848s
+%% 
+disp('M = L*U factorization')
+[L, U] = ilu(A);
+
+tic
+[x, flag, relRes, Iter, resVec2] = gmres(A, b, [], 1e-4, 500, L, U);
+toc
+disp(relRes)
+% Time: 0.720025s
+
+%% Residual error gmres with preconditioning.
+semilogy(0:length(resVec1)-1,resVec1/norm(b))
+hold on;
+semilogy(0:length(resVec2)-1,resVec2/norm(b))
+hold off;
+xlabel('Iterations k')
+grid;
+ylabel('Relative residual')
+legend('M = diag(A)', 'M = LU')
+title('Convergence Scheme of `gmres`')
+
+%% Using backslash
+
+M = diag(diag(A));
+M = inv(M);
+tic
+x1 = (M*A)\(M*b);
+toc
+
+%%
+[L, U] = ilu(A);
+M = L*U;
+M = inv(M);
+tic
+x2 = (M*A)\(M*b);
+toc
+%{
+    M = diag(A);
+    : 3.635695s
+
+
+    M = L*U;
+    :  
+
 %}
 
 %% Main function task 1.
