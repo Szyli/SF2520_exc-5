@@ -12,7 +12,7 @@ K = 1000;   %iteration limit
 
 [x1, y1] = main_1(2000,1,K,Methods.CG);
 [x2, y2] = main_1(4000,1,K,Methods.CG);
-[x3, y3] = main_1(200,2,K,Methods.CG);
+[x3, y3] = main_1(50,2,K,Methods.CG);
 [x4, y4] = main_1(20,3,K,Methods.CG);
 
 
@@ -47,22 +47,26 @@ K = 1000;   %iteration limit
 %% Plotting
 ylabel('relative residual size')
 xlabel('iteration number')
-grid on
 semilogy(1:x1, y1)
 hold on
 semilogy(1:x2, y2)
 semilogy(1:x3, y3)
 semilogy(1:x4, y4)
 title('Jacobi method')
+grid on
 legend('2000:1', '4000:1', '200:2', '20:3');
 ylabel('Reside r')
 xlabel('Iteration K')
 hold off;
 
+%% Task 2
 
 
 
-% main function here
+
+
+
+%% Main function task 1.
 function [iter_num, rel_res_size] = main_1(n, d, K, method)
     if isinteger(K)
         disp('K must be an integer!')
