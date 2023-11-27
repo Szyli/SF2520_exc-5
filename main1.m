@@ -58,13 +58,94 @@ legend('2000:1', '4000:1', '200:2', '20:3');
 ylabel('Reside r')
 xlabel('Iteration K')
 hold off;
-
+pause;
+clear all;
 %% Task 2
 
+% Load the file by double-taping it, it will be loaded as A; otherwise
+% it's a struct if you use load("...").
 
+% spy(A);
 
+b = rand(35296, 1);
+tic
+[x, flag, relRes, Iter, resVec] = pcg(A, b, 1e-4, 900);
+toc
+disp('Converged')
+disp(flag)
+disp('Relative residual size')
+disp(relRes)
+disp('Iterations')
+disp(Iter)
+disp('Residual error size')
+disp(size(resVec))
+semilogy(0:length(resVec)-1,resVec/norm(b))
+xlabel('Iterations k')
+grid;
+ylabel('Relative residual')
+title('Convergence Scheme of `pcg`')
 
+% Computation time 0.878271.
+%{
+    Iterations;
+        763
+    Residual size;
+        9.9645*10^(-5)
 
+%}
+%% Solving with the inverse method
+tic
+x = A\b;
+toc
+
+% Computation time 1.679235.
+% The computation time is more or less doubled.
+%% Precondtioner diag(A)
+M1 = diag(diag(A));
+
+disp('Time 1')
+tic
+[~, ~, ~, ~, resVec1] = pcg(A, b, 1e-4, 900, M1);
+toc
+
+L = ichol(A);
+disp('Time 2')
+tic
+[x, flag, relRes, Iter, resVec2] = pcg(A, b, 1e-4, 900, L, L');
+toc
+
+semilogy(0:length(resVec1)-1,resVec1/norm(b))
+hold on;
+semilogy(0:length(resVec2)-1,resVec2/norm(b))
+hold off;
+xlabel('Iterations k')
+grid;
+ylabel('Relative residual')
+legend('M = diag(A)', 'M = LL^T')
+title('Convergence Scheme of `pcg`')
+
+%% Solving the preconditioning equations
+M = diag(diag(A));
+M = inv(M);
+
+disp('M = diag(A)')
+tic
+x1 = (M*A)\(M*b);
+toc
+disp('M = L*L^T')
+L = ichol(A);
+M = L*L';
+M = inv(M);
+tic
+x2 = (M*A)\(M*b);
+toc
+
+%{
+    M = diag(A);
+        1.710944s
+    M = L*L^T;
+        1.627274s
+%}
 
 %% Main function task 1.
 function [iter_num, rel_res_size] = main_1(n, d, K, method)
