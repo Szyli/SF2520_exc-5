@@ -1,6 +1,7 @@
 function [x_k, iter_num, rel_res_size] = Jacobi(A, b, x_k, eps, K)
     %diagonal of A; in lecture notes it's named 'M'; is sparse
     M = diag(diag(A));
+
     T = M - A;
     x_guess = x_k + 1;
     A_x = A * x_guess;
